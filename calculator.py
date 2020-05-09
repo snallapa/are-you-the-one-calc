@@ -24,96 +24,133 @@ class Edge:
 
     def __hash__(self):
         return hash("".join(sorted([self.name1, self.name2])))
-            
-def read_events_json(file):
-    with open(file) as f:
-        data = json.load(f)
-        required_keys = ["contestants", "no_matches", "perfect_matches", "beams"]
-        for k in required_keys:
-            if k not in data:
-                raise Exception(f"Missing {key}")
-        for beam_round in data["beams"]:
-            arrangement = beam_round["arrangement"]
-            testing = []
-            for a in arrangement:
-                testing = testing + a
-            if set(testing) != set(data["contestants"]):
-                raise Exception(f"invalid beam round {beam_round}")
-        return data
 
-game = read_events_json("season_8.json")
 
-def create_initial_graph(game):
-    graph = {}
-    for contestant in game["contestants"]:
-        graph[contestant] = []
+class Game:
+    def __init__(self, json_file):
+        with open(json_file) as f:
+            data = json.load(f)
+            required_keys = ["contestants", "no_matches", "perfect_matches", "beams"]
+            for k in required_keys:
+                if k not in data:
+                    raise Exception(f"Missing {key}")
+            for beam_round in data["beams"]:
+                arrangement = beam_round["arrangement"]
+                testing = []
+                for a in arrangement:
+                    testing = testing + a
+                if set(testing) != set(data["contestants"]):
+                    raise Exception(f"invalid beam round {beam_round}")
+            self.game_data = data
 
-    done = set([])
-    
-    for match in game["perfect_matches"]:
-        name1, name2 = match
-        graph[name1] = [Edge(name1, name2, 1)]
-        graph[name2] = [Edge(name1, name2, 1)]
-        done.add(name1)
-        done.add(name2)
-
-    def noMatch(name1, name2):
-        for no_match in game["no_matches"]:
+    def no_match(self, name1, name2):
+        for no_match in self.game_data["no_matches"]:
             no1, no2 = no_match
             if set([no1, no2]) == set([name1, name2]):
                 return True
         return False
-        
 
-    for name1 in game["contestants"]:
-        for name2 in game["contestants"]:
-            if name1 == name2 or noMatch(name1, name2) or name1 in done or name2 in done:
-                continue
-            graph[name1] = graph.get(name1, []) + [Edge(name1, name2, 0)]
-            graph[name2] = graph.get(name2, []) + [Edge(name1, name2, 0)]
-    for k, v in graph.items():
-        graph[k] = list(set(v))
-    return graph
+    def add_no_match(self, name1, name2):
+        self.game_data["no_matches"].append([name1, name2])
 
-flatten = lambda l: [item for sublist in l for item in sublist]
-def pgraph(graph):
-    for k, v in graph.items():
-        print(f"{k} : {max(v, key=lambda x: x.weight)}")
-def calculate_odds(graph, game):
-    def update_edge(name1, name2, w):
-        for edge in graph[name1]:
-            if edge.name2 == name2:
-                edge.weight = 1 - (1 - edge.weight) * (1 - w)
-                break
-        for edge in graph[name2]:
-            if edge.name1 == name1:
-                edge.weight = 1 - (1 - edge.weight) * (1 - w)
-                break
-    def delete_edge(name1, name2):
-        del_edge = Edge(name1, name2, -1)
-        if del_edge in graph[name1]:
-            graph[name1].remove(del_edge)
-        if del_edge in graph[name2]:
-            graph[name2].remove(del_edge)
-    
-    def noMatch(name1, name2):
-        for no_match in game["no_matches"]:
-            if set(no_match) == set([name1, name2]):
-                delete_edge(name1, name2)
+    def in_perfect_match(self, name):
+        for p_match in self.game_data["perfect_matches"]:
+            if  name in p_match:
                 return True
-        for p_match in game["perfect_matches"]:
-            if  name1 in p_match or name2 in p_match:
+
+    def perfect_match(self, name1, name2):
+        for p_match in self.game_data["perfect_matches"]:
+            if  name1 in p_match and name2 in p_match:
                 return True
         return False
 
-    for beam in game["beams"]:
+    def get_contestants(self):
+        return self.game_data["contestants"]
+
+    def get_perfect_matches(self):
+        return self.game_data["perfect_matches"]
+
+    def add_perfect_match(self, name1, name2):
+        return self.game_data["perfect_matches"].append([name1, name2])
+
+    def get_beams(self):
+        return self.game_data["beams"]
+
+    def num_correct_arrangement(self, arrangement):
+        correct_beams = 0
+        for p_match in self.get_perfect_matches():
+            for a in arrangement:
+                if set(a) == set(p_match):
+                    correct_beams += 1
+        return correct_beams
+
+class GameGraph:
+    def __init__(self, game):
+        self.graph = {}
+        for contestant in game.get_contestants():
+            self.graph[contestant] = []
+        
+        for match in game.get_perfect_matches():
+            name1, name2 = match
+            self.graph[name1] = [Edge(name1, name2, 1)]
+            self.graph[name2] = [Edge(name1, name2, 1)]
+            
+
+        for name1 in game.get_contestants():
+            for name2 in game.get_contestants():
+                if name1 == name2 or game.no_match(name1, name2) or game.in_perfect_match(name1) or game.in_perfect_match(name2):
+                    continue
+                self.graph[name1] = self.graph.get(name1, []) + [Edge(name1, name2, 0)]
+                self.graph[name2] = self.graph.get(name2, []) + [Edge(name1, name2, 0)]
+        for k, v in self.graph.items():
+            self.graph[k] = list(set(v))
+
+    def update_edge(self, name1, name2, w):
+        for edge in self.graph[name1]:
+            if edge.name2 == name2:
+                edge.weight = 1 - (1 - edge.weight) * (1 - w)
+                break
+        for edge in self.graph[name2]:
+            if edge.name1 == name1:
+                edge.weight = 1 - (1 - edge.weight) * (1 - w)
+                break
+
+    def delete_edge(self, name1, name2):
+        del_edge = Edge(name1, name2, -1)
+        if del_edge in self.graph[name1]:
+            self.graph[name1].remove(del_edge)
+        if del_edge in self.graph[name2]:
+            self.graph[name2].remove(del_edge)
+
+    def edges(self):
+        return self.graph.values()
+
+    def __str__(self):
+        return "\n".join([f"{k} : {max(v, key=lambda x: x.weight)}" for k, v in self.graph.items()])
+
+    def __repr__(self):
+        return self.__str__()      
+
+game = Game("season_8.json")
+
+def calculate_odds(graph: GameGraph, game: Game):
+
+    def noMatch(name1, name2):
+        if game.no_match(name1, name2):
+            graph.delete_edge(name1, name2)
+            return True
+        if game.in_perfect_match(name1) or game.in_perfect_match(name2):
+            return True
+        return False
+
+    for beam in game.get_beams():
         if beam["num"] == 0:
             for a in beam["arrangement"]:
                 name1, name2 = a
-                delete_edge(name1, name2)
-                game["no_matches"].append([name1, name2])
+                graph.delete_edge(name1, name2)
+                game.add_no_match(name1,name2)
     redo = False
-    for beam in game["beams"]:
+    for beam in game.get_beams():
         arrangement = beam["arrangement"]
         num = beam["num"]
         # blackout
@@ -125,46 +162,35 @@ def calculate_odds(graph, game):
             if not noMatch(name1, name2):
                 possible_arrangements.append(a)
         print(possible_arrangements)
-        right = 0
-        for p_match in game["perfect_matches"]:
-            for a in arrangement:
-                if set(a) == set(p_match):
-                    right += 1
+
         if len(possible_arrangements) == 0:
             continue
-        prob = (num - right) / len(possible_arrangements)
+        prob = (num - game.num_correct_arrangement(arrangement)) / len(possible_arrangements)
         print(prob)
         for a in possible_arrangements:
             name1, name2 = a
             if prob == 0:
-                delete_edge(name1, name2)
-                game["no_matches"].append([name1, name2])
+                graph.delete_edge(name1, name2)
+                game.add_no_match(name1,name2)
                 redo = True
-            update_edge(name1, name2, prob)
+            graph.update_edge(name1, name2, prob)
             
-        for edgelists in graph.values():
+        for edgelists in graph.edges():
             for edge in edgelists:
-                if edge.weight >= 0.95 and (edge.name1 not in flatten(game["perfect_matches"]) or edge.name2 not in flatten(game["perfect_matches"])):
-                    game["perfect_matches"].append([edge.name1, edge.name2])
+                if edge.weight >= 0.95 and (not game.perfect_match(edge.name1, edge.name2)):
+                    game.add_perfect_match(edge.name1, edge.name2)
                     redo = True
-        pgraph(graph)
+        print(graph)
         if redo:
             print("REDO")
             break
-    if redo:
-        return game
+    return redo
 
 def do(game):
-    graph = create_initial_graph(game)
+    graph = GameGraph(game)
     while True:
-        game = calculate_odds(graph,game)
-
-        if game == None:
+        if not calculate_odds(graph,game):
             break
-        graph = create_initial_graph(game)
-    # print(graph)
-
-    pgraph(graph)
-    print(graph)
+        graph = GameGraph(game)
 
 do(game)

@@ -1,0 +1,177 @@
+{
+    "contestants": [
+      "aasha",
+      "amber",
+      "basit",
+      "brandon",
+      "danny",
+      "jasmine",
+      "jenna",
+      "jonathan",
+      "justin",
+      "kai",
+      "kari",
+      "kylie",
+      "max",
+      "nour",
+      "paige",
+      "remy"
+    ],
+    "perfect_matches": [
+        ["brandon", "aasha"]
+    ],
+    "no_matches": [
+        ["justin", "nour"],
+        ["bradon", "remy"],
+        ["jenna", "kai"],
+        ["danny", "jenna"],
+        ["kari", "kylie"],
+        ["jasmine", "jenna"],
+        ["paige", "remy"],
+        ["amber", "max"],
+        ["amber", "kylie"]
+    ],
+    "beams": [
+      {
+        "num": 2,
+        "arrangement": [
+          [
+            "paige",
+            "aasha"
+          ],
+          [
+            "nour",
+            "amber"
+          ],
+          [
+            "brandon",
+            "remy"
+          ],
+          [
+            "basit",
+            "jonathan"
+          ],
+          [
+            "max",
+            "justin"
+          ],
+          [
+            "kylie",
+            "kari"
+          ],
+          [
+            "danny",
+            "kai"
+          ],
+          [
+            "jasmine",
+            "jenna"
+          ]
+        ]
+      },
+      {
+        "num": 2,
+        "arrangement": [
+            ["kari", "kylie"],
+            ["brandon", "aasha"],
+            ["amber", "nour"],
+            ["basit", "jonathan"],
+            ["danny", "remy"],
+            ["jasmine", "justin"],
+            ["jenna", "kai"],
+            ["paige", "max"]
+        ]
+      },
+      {
+        "num": 2,
+        "arrangement": [
+            ["kari", "kylie"],
+            ["brandon", "jonathan"],
+            ["amber", "paige"],
+            ["basit", "remy"],
+            ["danny", "kai"],
+            ["jasmine", "nour"],
+            ["jenna", "justin"],
+            ["aasha", "max"]
+        ]
+      },
+      {
+        "num": 1,
+        "arrangement": [
+            ["kari", "kai"],
+            ["brandon", "jasmine"],
+            ["amber", "nour"],
+            ["basit", "danny"],
+            ["max", "justin"],
+            ["kylie", "jonathan"],
+            ["jenna", "paige"],
+            ["aasha", "remy"]
+        ]
+      },
+      {
+        "num": 0,
+        "arrangement": [
+            ["aasha", "kai"],
+            ["amber", "nour"],
+            ["basit", "remy"],
+            ["brandon", "max"],
+            ["danny", "kari"],
+            ["jasmine", "paige"],
+            ["jenna", "kylie"],
+            ["jonathan", "justin"]
+        ]
+      },
+      {
+        "num": 3,
+        "arrangement": [
+            ["aasha", "brandon"],
+            ["amber", "jenna"],
+            ["basit", "jonathan"],
+            ["danny", "kai"],
+            ["jasmine", "kylie"],
+            ["justin", "max"],
+            ["kari", "paige"],
+            ["nour", "remy"]
+        ]
+      },
+      {
+        "num": 3,
+        "arrangement": [
+            ["aasha", "brandon"],
+            ["amber", "danny"],
+            ["basit", "jonathan"],
+            ["jenna", "paige"],
+            ["jasmine", "kai"],
+            ["justin", "max"],
+            ["kari", "remy"],
+            ["nour", "kylie"]
+        ]
+      },
+      {
+        "num": 3,
+        "arrangement": [
+            ["aasha", "brandon"],
+            ["amber", "paige"],
+            ["basit", "jonathan"],
+            ["jenna", "kari"],
+            ["jasmine", "nour"],
+            ["justin", "max"],
+            ["kai", "remy"],
+            ["kylie", "danny"]
+        ]
+      },
+      {
+        "num": 6,
+        "arrangement": [
+            ["aasha", "brandon"],
+            ["amber", "kylie"],
+            ["basit", "jonathan"],
+            ["danny", "kai"],
+            ["jasmine", "nour"],
+            ["justin", "remy"],
+            ["kari", "max"],
+            ["paige", "jenna"]
+        ]
+      }
+    ]
+  }
